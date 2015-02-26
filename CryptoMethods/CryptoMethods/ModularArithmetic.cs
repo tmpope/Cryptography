@@ -103,7 +103,7 @@ namespace CryptoMethods
             return (int)temp;
         }
         /// <summary>
-        /// Performs the euclidian algorithm on a and b, returns GCD
+        /// Performs the euclidian algorithm on a and b, storing intermediate steps, returns GCD
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
@@ -124,6 +124,12 @@ namespace CryptoMethods
             } while (dividend[i + 1] != 0);
             return dividend[i];
         }
+        public static long GCD(long a, long b) {
+            if(b == 0)
+                return a;
+            return GCD(b, a % b);
+        }
+
         /// <summary>
         /// Returns whether a has an inverse modulo mod.  If so, the inverse
         /// is stored in the out variable inverse.  Otherwise the out variable
@@ -154,7 +160,38 @@ namespace CryptoMethods
             //TODO find inverse by traversing steps of Euclidian Algorithm
             return true;
         }
+        /// <summary>
+        /// Finds the Jacobi symbol (a/b), which is either +/- 1, or 0 if a = 0 mod b
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static int Jacobi(long a, long b) {
+            if (a % b == 0)
+                return 0;
+            if(a < 0) 
+            {
+                if((b & 3) == 3)
+                    return -1 * (Jacobi(-1 * a, b));
+                return (Jacobi(-1 * a, b));
+            }
+            if (a == 2)
+            {
+                switch (b % 8)
+                {
+                    case 3:
+                    case 5:
+                        return -1;
+                    case 1:
+                    case 7:
+                        return 1;
+                }
+            }
+            if(a > b)
+                return Jacobi(a % b, b);
+            return 0;//TODO finish implementing
 
+        }
         /// <summary>
         /// Returns whether a has an inverse modulo mod.  If so, the inverse
         /// is stored in the out variable inverse.  Otherwise the out variable
