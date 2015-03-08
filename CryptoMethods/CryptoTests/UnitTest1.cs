@@ -51,8 +51,9 @@ namespace CryptoTests
         {
             long a = 576031280;
             long b = 1496665131;
+            ModularArithmatic mod = new ModularArithmatic(5986660523);
             long m = 5986660523;
-            Assert.AreEqual(54473761, CryptoMethods.ModularArithmatic.FastExponentiate(a, b, m));
+            Assert.AreEqual(54473761, mod.FastExponentiate(a, b));
         }
         [TestMethod]
         public void TestMethod7()
@@ -97,6 +98,15 @@ namespace CryptoTests
             long inverse;
             Assert.IsFalse(CryptoMethods.ModularArithmatic.FindInverse(36, 1440, out inverse));
             Assert.AreEqual(40, inverse);
+        }
+        [TestMethod]
+        public void ComplexTest1()
+        {
+            Complex c = new Complex(1, 2, -1, new ModularArithmatic(5251));
+            Assert.IsTrue(c.Real == 1 && c.Imaginary == 2 & c.AbstractRoot == -1);
+            c.square();
+            Assert.AreEqual(-3, c.Real);
+            Assert.AreEqual(4, c.Imaginary);
         }
     }
 }

@@ -7,16 +7,125 @@ using System.Numerics;
 
 namespace CryptoMethods
 {
+    /// <summary>
+    /// Represents a 'coplex' number, an element of 
+    /// a + b sqrt(root), where root is not a square mod n.
+    /// </summary>
+    public class Complex
+    {
+        private ModularArithmatic mod; // ModularArithmetic(n)
+        private long abstractRoot; // not quadratic residue mod n
+        public long AbstractRoot
+        {
+            get { return abstractRoot; }
+        }
+        private long real;
+        public long Real
+        {
+            get { return real; }
+        }
+        private long imaginary;
+        public long Imaginary
+        {
+            get { return imaginary; }
+        }
+        /// <summary>
+        /// Assumes abstractRood is not residue in mod. Can be checked externally with Jacobi.
+        /// </summary>
+        /// <param name="real"></param>
+        /// <param name="imaginary"></param>
+        /// <param name="abstractRoot"></param>
+        /// <param name="mod"></param>
+        public Complex(long real, long imaginary, long abstractRoot, ModularArithmatic mod)
+        {
+            this.mod = mod;
+            this.real = real;
+            this.imaginary = imaginary;
+            this.abstractRoot = abstractRoot;
+        }
+        /// <summary>
+        /// Creates a copy of an existing complex number
+        /// </summary>
+        /// <param name="c"></param>
+        public Complex(Complex c)
+        {
+            this.real = c.real;
+            this.imaginary = c.imaginary;
+            this.abstractRoot = c.abstractRoot;
+            this.mod = c.mod;
+        }
+        /// <summary>
+        /// Assumes that c1 and c2 are from the same field (i.e. p == p, abstractRoot == abstractRoot)
+        /// If this is not the case, return will be as if they were both elements of the c1's field.
+        /// </summary>
+        /// <param name="c1"></param>
+        /// <param name="c2"></param>
+        /// <returns></returns>
+        public static Complex operator *(Complex c1, Complex c2)
+        {
+            return new Complex(c1.real * c2.real + c1.abstractRoot * c1.imaginary * c2.imaginary,
+                c1.real * c2.imaginary + c1.imaginary + c2.real,
+                c1.abstractRoot, c1.mod);
+        }
+        public bool field(Complex c1)
+        {
+            return abstractRoot == c1.abstractRoot && mod.Mod == c1.mod.Mod;
+        }
+        public void square()
+        {
+            long realTemp = real * real + abstractRoot * imaginary * imaginary;
+            long imgTemp = real * imaginary * 2;
+            real = realTemp;
+            imaginary = imgTemp;
+        }
+        public Complex FastExponentiate(long power)
+        {
+            string binary = Convert.ToString(power, 2);
+            Complex square = new Complex(this);
+            Complex answer = new Complex(1, 0, abstractRoot, mod);
+            if (binary[binary.Length - 1] == '1')
+                answer = this;
+            for (int i = 1; i < binary.Length; i++)
+            {
+                square.square();
+                if (binary[binary.Length - 1 - i] == '1')
+                    answer = answer * square;
+            }
+            return answer;
+        }
+    }
     public class ModularArithmatic
     {
+        private long mod;
+        public long Mod
+        {
+            get { return mod; }
+        }
+        public ModularArithmatic()
+        {
+
+        }
+        public ModularArithmatic(long mod)
+        {
+            this.mod = mod;
+        }
+        /// <summary>
+        /// Reduces a long in the field.
+        /// </summary>
+        /// <param name="l"></param>
+        /// <returns></returns>
+        public long Reduce(long l)
+        {
+            return l % mod;
+        }
         /// <summary>
         /// Uses successive squaring to find the bth power of an integer a mod m
         /// </summary>
         /// <param name="a">base</param>
         /// <param name="b">power</param>
-        /// <param name="m">modulus</param>
+        /// <param name="mod">modulus</param>
         /// <returns></returns>
-        public static long FastExponentiate(long a, long b, long m)
+        public long FastExponentiate(long a, long b)
         {
             string binary = Convert.ToString(b, 2);
             BigInteger square = a;
@@ -25,15 +134,25 @@ namespace CryptoMethods
                 answer = a;
             for (int i = 1; i < binary.Length; i++)
             {
-                square = BigInteger.Pow(square, 2) % m;
+                square = BigInteger.Pow(square, 2) % mod;
                 if (binary[binary.Length - 1 - i] == '1')
-                    answer = answer * square % m;
+                    answer = answer * square % mod;
             }
             return (long)answer;
         }
+        public int FastExponentiate(int a, int b)
+        {
+            return (int)FastExponentiate((long)a, (long)b);
+        }
         public static int FastExponentiate(int a, int b, int m)
         {
-            return (int)FastExponentiate((long)a, (long)b, (long)m);
+            ModularArithmatic temp = new ModularArithmatic(m);
+            return temp.FastExponentiate(a, b);
+        }
+        public static long FastExponentiate(long a, long b, long m)
+        {
+            ModularArithmatic temp = new ModularArithmatic(m);
+            return temp.FastExponentiate(a, b);
         }
         /// <summary>
         /// Raises an integer a to a power b mod m 
@@ -190,7 +309,24 @@ namespace CryptoMethods
             if(a > b)
                 return Jacobi(a % b, b);
             return 0;//TODO finish implementing
-
+        }
+        public int Jacobi(long a)
+        {
+            return Jacobi(a, mod);
+        }
+        /// <summary>
+        /// Calculates the Legendre symbol of a mod p.  Assumes p is prime.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public int Legendre(long a)
+        {
+            if (a > mod)
+                a = a % mod;
+            if (a == 0)
+                return 0;
+            return (int) FastExponentiate(a, (mod - 1) / 2);
         }
         /// <summary>
         /// Returns whether a has an inverse modulo mod.  If so, the inverse
