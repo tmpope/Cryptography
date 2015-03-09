@@ -98,7 +98,7 @@ namespace CryptoTests
             Complex c = new Complex(1, 2, -1, new ModularArithmatic(5251));
             Assert.IsTrue(c.Real == 1 && c.Imaginary == 2 & c.AbstractRoot == -1);
             c.square();
-            Assert.AreEqual(5248, c.Real);
+            Assert.AreEqual(-3, c.Real);
             Assert.AreEqual(4, c.Imaginary);
         }
         [TestMethod]
@@ -118,6 +118,20 @@ namespace CryptoTests
             Assert.AreEqual(821, d.Real);
             Assert.AreEqual(0, d.Imaginary);
             Assert.AreEqual(821, CryptoMethods.ModularArithmatic.FastExponentiate(83, 11, 1517));
+        }
+        [TestMethod]
+        public void Sieve1()
+        {
+            ModularArithmatic mod = new ModularArithmatic(3837523);
+            Assert.AreEqual(1147907, mod.Reduce(1964 * 14262));
+            Assert.AreEqual(mod.Reduce(sq(1147907)), mod.Reduce(sq(3 * 5 * 7 * 13 * 13)));
+            Assert.AreEqual(1093, mod.GCD(1130162));
+            Assert.AreEqual(mod.Mod, 3511 * 1093);
+
+        }
+        private long sq(long l)
+        {
+            return l * l;
         }
     }
 }

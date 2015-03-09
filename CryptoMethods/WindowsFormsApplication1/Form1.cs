@@ -35,7 +35,7 @@ namespace WindowsFormsApplication1
             if (steps == 0)
             {
                 value.Text = "" + (a + 1);
-                gcd.Text = ModularArithmatic.GCD(a, n).ToString();
+                divisor = ModularArithmatic.GCD(a, n);
             }
             else
             {

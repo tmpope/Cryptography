@@ -260,6 +260,10 @@ namespace CryptoMethods
                 return a;
             return GCD(b, a % b);
         }
+        public long GCD(long a)
+        {
+            return GCD(a, mod);
+        }
 
         /// <summary>
         /// Returns whether a has an inverse modulo mod.  If so, the inverse
