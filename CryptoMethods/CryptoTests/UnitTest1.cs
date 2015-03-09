@@ -20,17 +20,11 @@ namespace CryptoTests
         [TestMethod]
         public void TestMethod3()
         {
-            long a = 8059008699;
-            long b = 5448013423;
-            long m = 10993522499;
             Assert.AreEqual(821, CryptoMethods.ModularArithmatic.FastExponentiate(83, 11, 1517));
         }
         [TestMethod]
         public void TestMethod3b()
         {
-            long a = 8059008699;
-            long b = 5448013423;
-            long m = 10993522499;
             Assert.AreEqual(1097, CryptoMethods.ModularArithmatic.FastExponentiate(72, 11, 1517));
         }
         [TestMethod]
@@ -52,7 +46,6 @@ namespace CryptoTests
             long a = 576031280;
             long b = 1496665131;
             ModularArithmatic mod = new ModularArithmatic(5986660523);
-            long m = 5986660523;
             Assert.AreEqual(54473761, mod.FastExponentiate(a, b));
         }
         [TestMethod]
@@ -105,8 +98,26 @@ namespace CryptoTests
             Complex c = new Complex(1, 2, -1, new ModularArithmatic(5251));
             Assert.IsTrue(c.Real == 1 && c.Imaginary == 2 & c.AbstractRoot == -1);
             c.square();
-            Assert.AreEqual(-3, c.Real);
+            Assert.AreEqual(5248, c.Real);
             Assert.AreEqual(4, c.Imaginary);
+        }
+        [TestMethod]
+        public void ComplexTest2()
+        {
+            Complex c = new Complex(1, 2, -1, new ModularArithmatic(5251));
+            Assert.IsTrue(c.Real == 1 && c.Imaginary == 2 & c.AbstractRoot == -1);
+            Complex d = c.FastExponentiate(2);
+            Assert.AreEqual(5248, d.Real);
+            Assert.AreEqual(4, d.Imaginary);
+        }
+        [TestMethod]
+        public void ComplexTest3()
+        {
+            Complex c = new Complex(83, 0, -1, new ModularArithmatic(1517));
+            Complex d = c.FastExponentiate(11);
+            Assert.AreEqual(821, d.Real);
+            Assert.AreEqual(0, d.Imaginary);
+            Assert.AreEqual(821, CryptoMethods.ModularArithmatic.FastExponentiate(83, 11, 1517));
         }
     }
 }

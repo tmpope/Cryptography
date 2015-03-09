@@ -29,6 +29,11 @@ namespace CryptoMethods
         {
             get { return imaginary; }
         }
+        public long Norm
+        {
+            get { return real * real - abstractRoot * imaginary * imaginary; }
+        }
+
         /// <summary>
         /// Assumes abstractRood is not residue in mod. Can be checked externally with Jacobi.
         /// </summary>
@@ -39,8 +44,8 @@ namespace CryptoMethods
         public Complex(long real, long imaginary, long abstractRoot, ModularArithmatic mod)
         {
             this.mod = mod;
-            this.real = real;
-            this.imaginary = imaginary;
+            this.real = mod.Reduce(real);
+            this.imaginary = mod.Reduce(imaginary);
             this.abstractRoot = abstractRoot;
         }
         /// <summary>
@@ -64,7 +69,7 @@ namespace CryptoMethods
         public static Complex operator *(Complex c1, Complex c2)
         {
             return new Complex(c1.real * c2.real + c1.abstractRoot * c1.imaginary * c2.imaginary,
-                c1.real * c2.imaginary + c1.imaginary + c2.real,
+                c1.real * c2.imaginary + c1.imaginary * c2.real,
                 c1.abstractRoot, c1.mod);
         }
         public bool field(Complex c1)
@@ -93,6 +98,10 @@ namespace CryptoMethods
             }
             return answer;
         }
+        public override string ToString()
+        {
+            return real + " + " + imaginary + "i";
+        }
     }
     public class ModularArithmatic
     {
@@ -116,7 +125,10 @@ namespace CryptoMethods
         /// <returns></returns>
         public long Reduce(long l)
         {
-            return l % mod;
+            long red = l % mod;
+            if (red < 0)
+                return red + mod;
+            return red;
         }
         /// <summary>
         /// Uses successive squaring to find the bth power of an integer a mod m
